@@ -9,631 +9,630 @@ import java.util.Vector;
 
 import java.io.*;
 public class Plane extends JPanel implements MouseListener, 
-											 MouseWheelListener, 
-											 MouseMotionListener {
-	
-	private int maxX;
-	private int maxY;
-	private int centerX;
-	private int centerY;
-	private int factorIndexX;
-	private int factorIndexY;
+										 MouseWheelListener,
+										 MouseMotionListener {
 
-	private double pixelWidth;
-	private double pixelHeight;
-	private double gridIntervalX;
-	private double gridIntervalY;
-	private double[] factors;
-	
-	private final double DEFAULT_REAL_WIDTH = 10;
-	private final double DEFAULT_REAL_HEIGHT =10;
-	private double realWidth;
-	private double realHeight;
-	private double scaleInX;
-	private double scaleInY;
-	
-	private boolean firstTime;
-	private boolean showAxis;
-	private boolean showGrid;
-	private boolean showBlackSquares;
-	
-	private Point startDrag;
-	
-	private PrintStream out;
-	
-	
-	public Plane() {
-		addMouseListener(this);
-		addMouseWheelListener(this);
-		addMouseMotionListener(this);
-		firstTime = true;
-		
-		setRealWidth(DEFAULT_REAL_WIDTH);
-		setRealHeight(DEFAULT_REAL_HEIGHT);
-		
-		gridIntervalX = 0.5;
-		gridIntervalY = 0.5;
-		
-		factors = new double[] {2, 2, 2.5};
-		factorIndexX = 0;
-		factorIndexY = 0;
-		setShowAxis(true);
-		out = System.out;
-        showBlackSquares = true;
-	}
-	
-	public double getRealWidth() { return realWidth; }
-	public double getRealHeight() { return realHeight; }
-	
-	public void setRealWidth(double rw) { realWidth = rw; }
-	public void setRealHeight(double rh) { realHeight = rh; }
+private int maxX;
+private int maxY;
+private int centerX;
+private int centerY;
+private int factorIndexX;
+private int factorIndexY;
 
-	
-	@Override
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-	    Graphics2D g2d = (Graphics2D)g;
+private double pixelWidth;
+private double pixelHeight;
+private double gridIntervalX;
+private double gridIntervalY;
+private double[] factors;
 
-	    if (firstTime) {
-	      initGraphics();
-	      setScale();
-	      firstTime = false;
-	    }
+private final double DEFAULT_REAL_WIDTH = 5;
+private final double DEFAULT_REAL_HEIGHT = 5;
+private double realWidth;
+private double realHeight;
+private double scaleInX;
+private double scaleInY;
 
-	    if (isShowAxis())
-	      drawAxis(g2d);
+private boolean firstTime;
+private boolean showAxis;
+private boolean showGrid;
+private boolean showBlackSquares;
 
-	    if (isShowGrid())
-	      drawGrid(g2d);
+private Point startDrag;
 
-        if(isShowBlackSquares())
-            drawBlackSquares(g2d);
-	    
-	    g2d.setStroke(new BasicStroke(1.2f));
+private PrintStream out;
+
+
+public Plane() {
+	addMouseListener(this);
+	addMouseWheelListener(this);
+	addMouseMotionListener(this);
+	firstTime = true;
+
+	setRealWidth(DEFAULT_REAL_WIDTH);
+	setRealHeight(DEFAULT_REAL_HEIGHT);
+
+	gridIntervalX = 1.0;
+	gridIntervalY = 1.0;
+
+	factors = new double[] {2, 2, 2.5};
+	factorIndexX = 0;
+	factorIndexY = 0;
+	setShowAxis(true);
+	out = System.out;
+	showBlackSquares = true;
+}
+
+public double getRealWidth() { return realWidth; }
+public double getRealHeight() { return realHeight; }
+
+public void setRealWidth(double rw) { realWidth = rw; }
+public void setRealHeight(double rh) { realHeight = rh; }
+
+
+@Override
+public void paintComponent(Graphics g) {
+	super.paintComponent(g);
+	Graphics2D g2d = (Graphics2D)g;
+
+	if (firstTime) {
+	  initGraphics();
+	  setScale();
+	  firstTime = false;
 	}
 
-	///
-	// Returns whether to draw or not the black squares
-	// @return true if black squares are to be drawn
-	///
-	public boolean isShowBlackSquares() { return showBlackSquares; }
+	if (isShowAxis())
+	  drawAxis(g2d);
 
-	///
-	// Sets the showBlackSquares property
-	// @param showBlackSquares the new setting
-	///
-	public void setShowBlackSquares(boolean showBlackSquares) {
-		this.showBlackSquares = showBlackSquares;
-		repaint();
-	}
+	if (isShowGrid())
+	  drawGrid(g2d);
 
-	///
-	// Toggle showBlackSquares state
-	///
-	public void toggleShowBlackSquares() {
-		showBlackSquares = !showBlackSquares;
-		repaint();
-	}
+	if(isShowBlackSquares())
+		drawBlackSquares(g2d);
+
+	g2d.setStroke(new BasicStroke(1.2f));
+}
+
+///
+// Returns whether to draw or not the black squares
+// @return true if black squares are to be drawn
+///
+public boolean isShowBlackSquares() { return showBlackSquares; }
+
+///
+// Sets the showBlackSquares property
+// @param showBlackSquares the new setting
+///
+public void setShowBlackSquares(boolean showBlackSquares) {
+	this.showBlackSquares = showBlackSquares;
+	repaint();
+}
+
+///
+// Toggle showBlackSquares state
+///
+public void toggleShowBlackSquares() {
+	showBlackSquares = !showBlackSquares;
+	repaint();
+}
 
 
-	///
-	// Returns whether to draw or not the axis
-	// @return true if axis is to be drawn
-	///
-	public boolean isShowAxis() { return showAxis; }
+///
+// Returns whether to draw or not the axis
+// @return true if axis is to be drawn
+///
+public boolean isShowAxis() { return showAxis; }
 
-	///
-	// Sets the showAxes property
-	// @param showAxis the new setting
-	///
-	public void setShowAxis(boolean showAxis) { 
-		this.showAxis = showAxis; 
-		repaint();
-	}
-	
-	///
-	// Toggle showAxis state
-	///
-	public void toggleShowAxis() {
-		showAxis = !showAxis;
-		repaint();
-	}
-	
-	///
-	// Returns whether to draw or not the grid
-	// @return true if grid is to be drawn
-	///
-	public boolean isShowGrid() { return showGrid; }
-	
-	///
-	// Sets the showGrid property
-	// @param showGrid the new setting
-	///
-	public void setShowGrid(boolean showGrid) {
-		this.showGrid = showGrid;
-		repaint();
-	}
-	
-	///
-	// Toggle showGrid state
-	///
-	public void toggleShowGrid() {
-		showGrid = !showGrid;
-		repaint();
-	}
-	
-	///
-	// Initializes the variables needed to use isotropic mapping mode
-	//
-	protected void initGraphics() {
-		maxX = getWidth() - 1;
-		maxY = getHeight() - 1;
-		
-		centerX = maxX / 2;
-		centerY = maxY / 2;
-		
-		pixelWidth = realWidth/Math.max(maxX, maxY);
-		pixelHeight = realHeight/Math.max(maxX, maxY);
-		
-		factorIndexX = 0;
-		factorIndexY = 0;
-		
-		gridIntervalX = 0.5;
-		int w = ix(gridIntervalX) - ix(0);
-		while(w < 50 || w > 150) {
-			if(w < 50) {
-				gridIntervalX *= factors[factorIndexX];
-				factorIndexX = (factorIndexX + 1) % factors.length;
-			} else if(w > 150) {
-				factorIndexX = (factorIndexX - 1 + factors.length) % factors.length;
-				gridIntervalX /= factors[factorIndexX];
-			}
-			
-			w = ix(gridIntervalX) - ix(0);
+///
+// Sets the showAxes property
+// @param showAxis the new setting
+///
+public void setShowAxis(boolean showAxis) {
+	this.showAxis = showAxis;
+	repaint();
+}
+
+///
+// Toggle showAxis state
+///
+public void toggleShowAxis() {
+	showAxis = !showAxis;
+	repaint();
+}
+
+///
+// Returns whether to draw or not the grid
+// @return true if grid is to be drawn
+///
+public boolean isShowGrid() { return showGrid; }
+
+///
+// Sets the showGrid property
+// @param showGrid the new setting
+///
+public void setShowGrid(boolean showGrid) {
+	this.showGrid = showGrid;
+	repaint();
+}
+
+///
+// Toggle showGrid state
+///
+public void toggleShowGrid() {
+	showGrid = !showGrid;
+	repaint();
+}
+
+///
+// Initializes the variables needed to use isotropic mapping mode
+//
+protected void initGraphics() {
+	maxX = getWidth() - 1;
+	maxY = getHeight() - 1;
+
+	centerX = maxX / 2;
+	centerY = maxY / 2;
+
+	pixelWidth = realWidth/Math.max(maxX, maxY);
+	pixelHeight = realHeight/Math.max(maxX, maxY);
+
+	factorIndexX = 0;
+	factorIndexY = 0;
+
+	gridIntervalX = 0.5;
+	int w = ix(gridIntervalX) - ix(0);
+	while(w < 50 || w > 150) {
+		if(w < 50) {
+			gridIntervalX *= factors[factorIndexX];
+			factorIndexX = (factorIndexX + 1) % factors.length;
+		} else if(w > 150) {
+			factorIndexX = (factorIndexX - 1 + factors.length) % factors.length;
+			gridIntervalX /= factors[factorIndexX];
 		}
-		
-		gridIntervalY = 0.5;
-		int h = iy(0) - iy(gridIntervalY);
-	    while (h < 50 || h > 150) {
-	      if (h < 50) {
-	        gridIntervalY *= factors[factorIndexY];
-	        factorIndexY = (factorIndexY + 1)%factors.length;
-	      } else if (h > 150) {
-	        factorIndexY = (factorIndexY - 1 + factors.length)%factors.length;
-	        gridIntervalY /= factors[factorIndexY];
-	      }
-	      h = iy(0) - iy(gridIntervalY);
-	    }
-	}
-	
-	///
-	// Returns n rounded to the nearest integer
-	// @param n a double integer
-	// @return an integer rounded to the nearest integer
-	///
-	int round(double n) {
-		return (int)Math.floor(n + 0.5);
-	}
-	
-	///
-	// Returns the device-coordinate of x.
-	// @param x x-coordinate in logical coordinates
-	// @return an integer with the device-coordinate of x
-	/// 
-	protected int ix(double x) {
-		return round(centerX + x / pixelWidth);
-	}
-	
-	///
-	// Returns the device-coordinate of y.
-	// @param y y-coordinate in logical coordinated
-	// @return an integer with the device-coordinate of y
-	/// 
-	protected int iy(double y) {
-		return round(centerY - y / pixelHeight);
-	}
-	
-	///
-	// Returns the device-coordinate of x using a particular pixel size
-	// @param x x-coordinate in logical-coordinates
-	// @param ps pixel size
-	// @return an integer with the device-coordinate of x
-	///
-	protected int ix(double x, double ps) {
-		return round(centerX + x / ps);
-	}
-	
-	///
-	// Returns the device-coordinate of y using a particular pixel size
-	// @param y y-coordinate in logical-coordinates
-	// @param ps pixel size
-	// @return an integer with the device-coordinate of y
-	///
-	protected int iy(double y, double ps) {
-		return round(centerY - y / ps);
-	}
-	
-	///
-	// Returns the logical coordinate of x.
-	// @param x x-coordinate in device-coordinates
-	// @return double, logical coordinate of x
-	///
-	public double fx(int x) {
-		return (double)(x - centerX) * pixelWidth;
-	}
-	
-	///
-	// Returns the logical coordinate of y.
-	// @param y y-coordinate in device-coordinates
-	// @return double, logical coordinate of y
-	///
-	public double fy(int y) {
-		return (double)(centerY - y) * pixelHeight;
-	}
-	
-	///
-	// Returns real with the specified precision.
-	// @param real a real number
-	// @param precision precision in digits of the output
-	// @return real with the specified precision
-	/// 
-	public double setPrecision(double real, int precision) {
-		BigDecimal decimal = new BigDecimal(real, new MathContext(precision));
-		return decimal.doubleValue();
-	}
-	
-	///
-	// Zooms out of the plane ten percent with origin in mouse click
-	// @param mx X coordinate of mouse click
-	// @param my Y coordinate of mouse click
-	///
-	public void zoomOut(int mx, int my) {
-		double psx = pixelWidth;
-		double psy = pixelHeight;
-		Point2D previous = new Point2D(fx(mx), fy(my));
-		pixelWidth += pixelWidth / 2;
-		pixelHeight += pixelHeight / 2;
-		
-		if(pixelWidth > 1e7 || pixelHeight > 1e7)
-			return;
-		
-		int dx = ix(previous.x()) - ix(previous.x(), psx);
-		int dy = iy(previous.y()) - ix(previous.y(), psy);
-		
-		centerX -= dx;
-		centerY -= dy;
-		
-		repaint();
-	}
-	
-	
-	///
-	// Zooms in the plane ten percent with origin in mouse click
-	// @param mx X coordinate of mouse click
-	// @param my Y coordinate of mouse click
-	/// 
-	public void zoomIn(int mx, int my) {
-		double psx = pixelWidth;
-		double psy = pixelHeight;
-		Point2D previous = new Point2D(fx(mx), fy(my));
-		
-		
-		if(pixelWidth > 1e7 || pixelHeight > 1e7)
-			return;
-		
-		pixelWidth -= pixelWidth / 2;
-		pixelHeight -= pixelHeight / 2;
-		
-		int dx = ix(previous.x()) - ix(previous.x(), psx);
-		int dy = iy(previous.y()) - ix(previous.y(), psy);
-		
-		centerX -= dx;
-		centerY -= dy;
-		
-		repaint();
-	}
-	
-	///
-	// Restore the original scale
-	///
-	public void resetZoom() {
-		setRealWidth(DEFAULT_REAL_WIDTH);
-		setRealHeight(DEFAULT_REAL_HEIGHT);
-		initGraphics();
-		
-		repaint();
-	}
-	
-	
-	/// 
-	// These methods set and get the values for scale of the plane 
-	//
-	public void setScaleInX(double scale) { scaleInX = scale; }
-	public void setScaleInY(double scale) { scaleInY = scale; }
-	
-	public double getScaleInX() { return scaleInX; }
-	public double getScaleInY() { return scaleInY; }
-	
-	
-	///
-	// Set the scale of the plane in the form a:b
-	///
-	private void setScale() {
-		double a = getScaleInX();
-		double b = getScaleInY();
-		resetZoom();
-		double factor = (double)a/(double)b;
-		setRealWidth(getRealWidth() * factor);
-		initGraphics();
-	}
-	
-	///
-	// Translate the plane and set point (x, y) as the center of the viewpoint
-	// @param x
-	// @param y
-	///
-	public void translate(double x, double y) {
-		int cx = getWidth()/2;
-		int cy = getHeight()/2;
-		int dx = ix(x) - cx;
-		int dy = iy(y) - cy;
-		
-		centerX -= dx;
-		centerY -= dy;
-		
-		repaint();
-	}
-	
-	
-	/// 
-	// Draw grid in the plane
-	// @param g2d Graphics2D object
-	public void drawGrid(Graphics2D g2d) {
-		double left = fx(0);
-	    double top = fy(0);
-	    double right = fx(getWidth() - 1);
-	    double bottom = fy(getHeight() - 1);
 
-	    int w = ix(gridIntervalX) - ix(0);
-	    if (w < 50) {
-	      gridIntervalX *= factors[factorIndexX];
-	      factorIndexX = (factorIndexX + 1)%factors.length;
-	    } else if (w > 150) {
-	      factorIndexX = (factorIndexX - 1 + factors.length)%factors.length;
-	      gridIntervalX /= factors[factorIndexX];
-	    }
-
-	    int cX = ix(0);
-	    int interval = java.lang.Math.max(1, ix(gridIntervalX) - cX);
-	    int mod = cX % interval;
-	    double startX = fx(mod) - (fx(mod) % gridIntervalX) - gridIntervalX;
-
-
-	    Stroke dash = new BasicStroke(0.5f, BasicStroke.CAP_SQUARE,
-	                                  BasicStroke.JOIN_MITER, 10,
-	                                  new float[] {8,4}, 0);
-
-
-	    g2d.setStroke(dash);
-	    g2d.setColor(new Color(140, 140, 140));
-	    for (double i = startX; i <= right; i += gridIntervalX)
-	      if (ix(i) != ix(0) || !isShowAxis())
-	        g2d.drawLine(ix(i), iy(top), ix(i), iy(bottom));
-
-
-
-	    int h = iy(0) - iy(gridIntervalY);
-	    if (h < 50) {
-	      gridIntervalY *= factors[factorIndexY];
-	      factorIndexY = (factorIndexY + 1)%factors.length;
-	    } else if (h > 150) {
-	      factorIndexY = (factorIndexY - 1 + factors.length)%factors.length;
-	      gridIntervalY /= factors[factorIndexY];
-	    }
-
-	    int cY = iy(0);
-	    interval = java.lang.Math.max(1, iy(gridIntervalY) - cY);
-	    mod = cY % interval;
-	    double startY = fy(mod) - (fy(mod) % gridIntervalY) + gridIntervalY;
-
-	    for (double i = startY; i >= bottom; i -= gridIntervalY)
-	      if (iy(i) != iy(0) || !isShowAxis())
-	        g2d.drawLine(ix(left), iy(i), ix(right), iy(i));
-	} // End of drawGrid
-	
-	
-	///
-	// Draw axes in the plane
-	// @param g2d a Graphics2D object
-	///
-	public void drawAxis(Graphics2D g2d) {
-		double left = fx(0);
-	    double top = fy(0);
-	    double right = fx(getWidth() - 1);
-	    double bottom = fy(getHeight() - 1);
-
-	    int w = ix(gridIntervalX) - ix(0);
-	    if (w < 50) {
-	      gridIntervalX *= factors[factorIndexX];
-	      factorIndexX = (factorIndexX + 1)%factors.length;
-	    } else if (w > 150) {
-	      factorIndexX = (factorIndexX - 1 + factors.length)%factors.length;
-	      gridIntervalX /= factors[factorIndexX];
-	    }
-
-	    int cX = ix(0);
-	    int interval = java.lang.Math.max(1, ix(gridIntervalX) - cX);
-	    int mod = cX % interval;
-	    double startX = fx(mod) - (fx(mod) % gridIntervalX) - gridIntervalX;
-
-
-	    g2d.setStroke(new BasicStroke(1f));
-	    g2d.setColor(Color.BLACK);
-
-	    for (double i = startX; i <= right; i += gridIntervalX) {
-	      if (ix(i) == ix(0)) {
-	        g2d.drawLine(ix(i), iy(top), ix(i), iy(bottom));
-
-	        //Draws arrows of y axis
-	        g2d.drawLine(ix(i) - 7, iy(top) + 7, ix(i), iy(top));
-	        g2d.drawLine(ix(i) + 7, iy(top) + 7, ix(i), iy(top));
-	        g2d.drawString("y", ix(i) - 20, iy(top) + 10);
-
-	        g2d.drawLine(ix(i) - 7, iy(bottom) - 7, ix(i), iy(bottom));
-	        g2d.drawLine(ix(i) + 7, iy(bottom) - 7, ix(i), iy(bottom));
-	        g2d.drawString("-y", ix(i) - 20, iy(bottom) - 10);
-	      } else {
-	        g2d.drawString("" + setPrecision(i, 5), ix(i) + 5, iy(0) + 15);
-	      }
-	      g2d.drawLine(ix(i), iy(0), ix(i), iy(0) + 12);
-	    }
-
-
-	    int h = iy(0) - iy(gridIntervalY);
-	    if (h < 50) {
-	      gridIntervalY *= factors[factorIndexY];
-	      factorIndexY = (factorIndexY + 1)%factors.length;
-	    } else if (w > 150) {
-	      factorIndexY = (factorIndexY - 1 + factors.length)%factors.length;
-	      gridIntervalY /= factors[factorIndexY];
-	    }
-
-
-	    int cY = iy(0);
-	    interval = java.lang.Math.max(1, iy(gridIntervalY) - cY);
-	    mod = cY % interval;
-	    double startY = fy(mod) - (fy(mod) % gridIntervalY) + gridIntervalY;
-
-	    for (double i = startY; i >= bottom; i -= gridIntervalY) {
-	      if (iy(i) == iy(0)) {
-	        g2d.drawLine(ix(left), iy(i), ix(right), iy(i));
-
-	        //Draw arrows of x axis
-	        g2d.drawLine(ix(left) + 7, iy(i) - 7, ix(left), iy(i));
-	        g2d.drawLine(ix(left) + 7, iy(i) + 7, ix(left), iy(i));
-	        g2d.drawString("-x", ix(left) + 5, iy(i) - 10);
-
-	        g2d.drawLine(ix(right) - 7, iy(i) - 7, ix(right), iy(i));
-	        g2d.drawLine(ix(right) - 7, iy(i) + 7, ix(right), iy(i));
-	        g2d.drawString("x", ix(right) - 5, iy(i) - 10);
-	      } else {
-	        g2d.drawString("" + setPrecision(i, 5), ix(0) + 10, iy(i) - 5);
-	      }
-	      g2d.drawLine(ix(0), iy(i), ix(0) + 12, iy(i));
-	    }
-	} // End of drawAxes
-
-
-    public void drawBlackSquares(Graphics2D g2d) {
-        int left = (int)fx(0);
-        int top = (int)fy(0);
-        int right = (int)fx(getWidth() - 1);
-        int bottom = (int)fy(getHeight() - 1);
-
-        for(int x = left; x < right; x++) {
-            for(int y = bottom; y < top; y++) {
-                if(checkIfBlack(x, y)) {
-                    double xCoord = (double)x - 0.5;
-                    double yCoord = (double)y - 0.5;
-                    System.out.println("Black Point at: " + x + " " + y);
-                    System.out.println("Screen Coords: " + ix(x) + " " + iy(y));
-                }
-                //g2d.drawRect(xCoord, yCoord, 1, 1);
-            }
-        }
-    }
-
-    private boolean checkIfBlack(int x, int y) {
-        if(isPrime(x*x + y*y)) return true;
-        if(isPrime(x) && y == 0){
-            if(x % 4 == 3) return true;
-        }
-        if(isPrime(y) && x == 0){
-            if(y % 4 == 3) return true;
-        }
-        return false;
-    }
-
-    boolean isPrime(int p) {
-        if(p < 2) return false;
-        if(p == 2 || p == 3) return true;
-        if(p % 2 == 0 || p % 3 == 0) return false;
-        long sqrtN = (long)Math.sqrt(p) + 1;
-        for(long i = 6L; i <= sqrtN; i += 6) {
-            if(p % (i-1) == 0 || p % (i+1) == 0) return false;
-        }
-        return true;
-    }
-	
-	
-	///
-	// MouseListener Methods
-	///
-	@Override
-	public void mouseReleased(MouseEvent event) { }
-	
-	@Override
-	public void mouseExited(MouseEvent event) { }
-	
-	@Override
-	public void mouseClicked(MouseEvent event) {	}
-
-	@Override
-	public void mouseEntered(MouseEvent event) {	}
-
-	@Override
-	public void mousePressed(MouseEvent event) { 
-		startDrag = event.getPoint();
+		w = ix(gridIntervalX) - ix(0);
 	}
 
-	
-	
-	/// 
-	// MouseMotionListener Methods
-	//
-	
-	///
-	// Performs plane dragging
-	// @param event MouseEvent with coordinate of mouse position
-	@Override
-	public void mouseDragged(MouseEvent event) { 
-		int dx = event.getX() - (int)startDrag.getX();
-		int dy = event.getY() - (int)startDrag.getY();
-		
-		if(dx*dx + dy*dy < 50)
-			return;
-		
-		startDrag = event.getPoint();
-		centerX += dx;
-		centerY += dy;
-		repaint();
+	gridIntervalY = 0.5;
+	int h = iy(0) - iy(gridIntervalY);
+	while (h < 50 || h > 150) {
+	  if (h < 50) {
+		gridIntervalY *= factors[factorIndexY];
+		factorIndexY = (factorIndexY + 1)%factors.length;
+	  } else if (h > 150) {
+		factorIndexY = (factorIndexY - 1 + factors.length)%factors.length;
+		gridIntervalY /= factors[factorIndexY];
+	  }
+	  h = iy(0) - iy(gridIntervalY);
+	}
+}
 
-        System.out.println("Width: " + 2 * fx(getWidth() - 1));
-        System.out.println("Height: " + 2 * fx(getHeight() - 1));
+///
+// Returns n rounded to the nearest integer
+// @param n a double integer
+// @return an integer rounded to the nearest integer
+///
+int round(double n) {
+	return (int)Math.floor(n + 0.5);
+}
+
+///
+// Returns the device-coordinate of x.
+// @param x x-coordinate in logical coordinates
+// @return an integer with the device-coordinate of x
+///
+protected int ix(double x) {
+	return round(centerX + x / pixelWidth);
+}
+
+///
+// Returns the device-coordinate of y.
+// @param y y-coordinate in logical coordinated
+// @return an integer with the device-coordinate of y
+///
+protected int iy(double y) {
+	return round(centerY - y / pixelHeight);
+}
+
+///
+// Returns the device-coordinate of x using a particular pixel size
+// @param x x-coordinate in logical-coordinates
+// @param ps pixel size
+// @return an integer with the device-coordinate of x
+///
+protected int ix(double x, double ps) {
+	return round(centerX + x / ps);
+}
+
+///
+// Returns the device-coordinate of y using a particular pixel size
+// @param y y-coordinate in logical-coordinates
+// @param ps pixel size
+// @return an integer with the device-coordinate of y
+///
+protected int iy(double y, double ps) {
+	return round(centerY - y / ps);
+}
+
+///
+// Returns the logical coordinate of x.
+// @param x x-coordinate in device-coordinates
+// @return double, logical coordinate of x
+///
+public double fx(int x) {
+	return (double)(x - centerX) * pixelWidth;
+}
+
+///
+// Returns the logical coordinate of y.
+// @param y y-coordinate in device-coordinates
+// @return double, logical coordinate of y
+///
+public double fy(int y) {
+	return (double)(centerY - y) * pixelHeight;
+}
+
+///
+// Returns real with the specified precision.
+// @param real a real number
+// @param precision precision in digits of the output
+// @return real with the specified precision
+///
+public double setPrecision(double real, int precision) {
+	BigDecimal decimal = new BigDecimal(real, new MathContext(precision));
+	return decimal.doubleValue();
+}
+
+///
+// Zooms out of the plane ten percent with origin in mouse click
+// @param mx X coordinate of mouse click
+// @param my Y coordinate of mouse click
+///
+public void zoomOut(int mx, int my) {
+	double psx = pixelWidth;
+	double psy = pixelHeight;
+	Point2D previous = new Point2D(fx(mx), fy(my));
+	pixelWidth += pixelWidth / 2;
+	pixelHeight += pixelHeight / 2;
+
+	if(pixelWidth > 1e7 || pixelHeight > 1e7)
+		return;
+
+	int dx = ix(previous.x()) - ix(previous.x(), psx);
+	int dy = iy(previous.y()) - ix(previous.y(), psy);
+
+	centerX -= dx;
+	centerY -= dy;
+
+	repaint();
+}
+
+
+///
+// Zooms in the plane ten percent with origin in mouse click
+// @param mx X coordinate of mouse click
+// @param my Y coordinate of mouse click
+///
+public void zoomIn(int mx, int my) {
+	double psx = pixelWidth;
+	double psy = pixelHeight;
+	Point2D previous = new Point2D(fx(mx), fy(my));
+
+
+	if(pixelWidth > 1e7 || pixelHeight > 1e7)
+		return;
+
+	pixelWidth -= pixelWidth / 2;
+	pixelHeight -= pixelHeight / 2;
+
+	int dx = ix(previous.x()) - ix(previous.x(), psx);
+	int dy = iy(previous.y()) - ix(previous.y(), psy);
+
+	centerX -= dx;
+	centerY -= dy;
+
+	repaint();
+}
+
+///
+// Restore the original scale
+///
+public void resetZoom() {
+	setRealWidth(DEFAULT_REAL_WIDTH);
+	setRealHeight(DEFAULT_REAL_HEIGHT);
+	initGraphics();
+
+	repaint();
+}
+
+
+///
+// These methods set and get the values for scale of the plane
+//
+public void setScaleInX(double scale) { scaleInX = scale; }
+public void setScaleInY(double scale) { scaleInY = scale; }
+
+public double getScaleInX() { return scaleInX; }
+public double getScaleInY() { return scaleInY; }
+
+
+///
+// Set the scale of the plane in the form a:b
+///
+private void setScale() {
+	double a = getScaleInX();
+	double b = getScaleInY();
+	resetZoom();
+	double factor = (double)a/(double)b;
+	setRealWidth(getRealWidth() * factor);
+	initGraphics();
+}
+
+///
+// Translate the plane and set point (x, y) as the center of the viewpoint
+// @param x
+// @param y
+///
+public void translate(double x, double y) {
+	int cx = getWidth()/2;
+	int cy = getHeight()/2;
+	int dx = ix(x) - cx;
+	int dy = iy(y) - cy;
+
+	centerX -= dx;
+	centerY -= dy;
+
+	repaint();
+}
+
+
+///
+// Draw grid in the plane
+// @param g2d Graphics2D object
+public void drawGrid(Graphics2D g2d) {
+	double left = fx(0);
+	double top = fy(0);
+	double right = fx(getWidth() - 1);
+	double bottom = fy(getHeight() - 1);
+
+	int w = ix(gridIntervalX) - ix(0);
+	if (w < 50) {
+	  gridIntervalX *= factors[factorIndexX];
+	  factorIndexX = (factorIndexX + 1)%factors.length;
+	} else if (w > 150) {
+	  factorIndexX = (factorIndexX - 1 + factors.length)%factors.length;
+	  gridIntervalX /= factors[factorIndexX];
 	}
 
-	@Override
-	public void mouseMoved(MouseEvent event) { }
+	int cX = ix(0);
+	int interval = java.lang.Math.max(1, ix(gridIntervalX) - cX);
+	int mod = cX % interval;
+	double startX = fx(mod) - (fx(mod) % gridIntervalX) - gridIntervalX;
 
-	
-	///
-	// MouseWheelListener Methods
-	///
-	
-	
-	///
-	// Controls zoom direction
-	// @param event a MouseWheelEvent object
-	///
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent event) {
-		int rotation = event.getWheelRotation();
-		int x = event.getX();
-		int y = event.getY();
-		
-		if(rotation > 0)
-			zoomIn(x, y);
-		else
-			zoomOut(x, y);	
+
+	Stroke dash = new BasicStroke(0.5f, BasicStroke.CAP_SQUARE,
+								  BasicStroke.JOIN_MITER, 10,
+								  new float[] {8,4}, 0);
+
+
+	g2d.setStroke(dash);
+	g2d.setColor(new Color(140, 140, 140));
+	for (double i = startX; i <= right; i += gridIntervalX)
+	  if (ix(i) != ix(0) || !isShowAxis())
+		g2d.drawLine(ix(i), iy(top), ix(i), iy(bottom));
+
+
+
+	int h = iy(0) - iy(gridIntervalY);
+	if (h < 50) {
+	  gridIntervalY *= factors[factorIndexY];
+	  factorIndexY = (factorIndexY + 1)%factors.length;
+	} else if (h > 150) {
+	  factorIndexY = (factorIndexY - 1 + factors.length)%factors.length;
+	  gridIntervalY /= factors[factorIndexY];
 	}
+
+	int cY = iy(0);
+	interval = java.lang.Math.max(1, iy(gridIntervalY) - cY);
+	mod = cY % interval;
+	double startY = fy(mod) - (fy(mod) % gridIntervalY) + gridIntervalY;
+
+	for (double i = startY; i >= bottom; i -= gridIntervalY)
+	  if (iy(i) != iy(0) || !isShowAxis())
+		g2d.drawLine(ix(left), iy(i), ix(right), iy(i));
+} // End of drawGrid
+
+
+///
+// Draw axes in the plane
+// @param g2d a Graphics2D object
+///
+public void drawAxis(Graphics2D g2d) {
+	double left = fx(0);
+	double top = fy(0);
+	double right = fx(getWidth() - 1);
+	double bottom = fy(getHeight() - 1);
+
+	int w = ix(gridIntervalX) - ix(0);
+	if (w < 50) {
+	  gridIntervalX *= factors[factorIndexX];
+	  factorIndexX = (factorIndexX + 1)%factors.length;
+	} else if (w > 150) {
+	  factorIndexX = (factorIndexX - 1 + factors.length)%factors.length;
+	  gridIntervalX /= factors[factorIndexX];
+	}
+
+	int cX = ix(0);
+	int interval = java.lang.Math.max(1, ix(gridIntervalX) - cX);
+	int mod = cX % interval;
+	double startX = fx(mod) - (fx(mod) % gridIntervalX) - gridIntervalX;
+
+
+	g2d.setStroke(new BasicStroke(1f));
+	g2d.setColor(Color.BLACK);
+
+	for (double i = startX; i <= right; i += gridIntervalX) {
+	  if (ix(i) == ix(0)) {
+		g2d.drawLine(ix(i), iy(top), ix(i), iy(bottom));
+
+		//Draws arrows of y axis
+		g2d.drawLine(ix(i) - 7, iy(top) + 7, ix(i), iy(top));
+		g2d.drawLine(ix(i) + 7, iy(top) + 7, ix(i), iy(top));
+		g2d.drawString("y", ix(i) - 20, iy(top) + 10);
+
+		g2d.drawLine(ix(i) - 7, iy(bottom) - 7, ix(i), iy(bottom));
+		g2d.drawLine(ix(i) + 7, iy(bottom) - 7, ix(i), iy(bottom));
+		g2d.drawString("-y", ix(i) - 20, iy(bottom) - 10);
+	  } else {
+		g2d.drawString("" + setPrecision(i, 5), ix(i) + 5, iy(0) + 15);
+	  }
+	  g2d.drawLine(ix(i), iy(0), ix(i), iy(0) + 12);
+	}
+
+
+	int h = iy(0) - iy(gridIntervalY);
+	if (h < 50) {
+	  gridIntervalY *= factors[factorIndexY];
+	  factorIndexY = (factorIndexY + 1)%factors.length;
+	} else if (w > 150) {
+	  factorIndexY = (factorIndexY - 1 + factors.length)%factors.length;
+	  gridIntervalY /= factors[factorIndexY];
+	}
+
+
+	int cY = iy(0);
+	interval = java.lang.Math.max(1, iy(gridIntervalY) - cY);
+	mod = cY % interval;
+	double startY = fy(mod) - (fy(mod) % gridIntervalY) + gridIntervalY;
+
+	for (double i = startY; i >= bottom; i -= gridIntervalY) {
+	  if (iy(i) == iy(0)) {
+		g2d.drawLine(ix(left), iy(i), ix(right), iy(i));
+
+		//Draw arrows of x axis
+		g2d.drawLine(ix(left) + 7, iy(i) - 7, ix(left), iy(i));
+		g2d.drawLine(ix(left) + 7, iy(i) + 7, ix(left), iy(i));
+		g2d.drawString("-x", ix(left) + 5, iy(i) - 10);
+
+		g2d.drawLine(ix(right) - 7, iy(i) - 7, ix(right), iy(i));
+		g2d.drawLine(ix(right) - 7, iy(i) + 7, ix(right), iy(i));
+		g2d.drawString("x", ix(right) - 5, iy(i) - 10);
+	  } else {
+		g2d.drawString("" + setPrecision(i, 5), ix(0) + 10, iy(i) - 5);
+	  }
+	  g2d.drawLine(ix(0), iy(i), ix(0) + 12, iy(i));
+	}
+} // End of drawAxes
+
+
+public void drawBlackSquares(Graphics2D g2d) {
+	int left = (int)fx(0);
+	int top = (int)fy(0);
+	int right = (int)fx(getWidth() - 1);
+	int bottom = (int)fy(getHeight() - 1);
+	double width = ix(2) - ix(1);
+	double height = iy(1) - iy(2);
+	g2d.setColor(new Color(0, 0, 0, 255));
+
+	for(int x = left; x < right; x++) {
+		for(int y = bottom; y < top; y++) {
+			if(checkIfBlack(x, y)) {
+				double xCoord = ix(x) - width * 0.5;
+				double yCoord = iy(y) - height * 0.5;
+				g2d.fillRect((int)xCoord, (int)yCoord, (int)width, (int)height);
+			}
+
+		}
+	}
+}
+
+private boolean checkIfBlack(int x, int y) {
+	if(isPrime(x*x + y*y)) return true;
+	if(isPrime(x) && y == 0){
+		if(x % 4 == 3) return true;
+	}
+	if(isPrime(y) && x == 0){
+		if(y % 4 == 3) return true;
+	}
+	return false;
+}
+
+private boolean isPrime(int p) {
+	if(p < 2) return false;
+	if(p == 2 || p == 3) return true;
+	if(p % 2 == 0 || p % 3 == 0) return false;
+	long sqrtN = (long)Math.sqrt(p) + 1;
+	for(long i = 6L; i <= sqrtN; i += 6) {
+		if(p % (i-1) == 0 || p % (i+1) == 0) return false;
+	}
+	return true;
+}
+
+
+///
+// MouseListener Methods
+///
+@Override
+public void mouseReleased(MouseEvent event) { }
+
+@Override
+public void mouseExited(MouseEvent event) { }
+
+@Override
+public void mouseClicked(MouseEvent event) {	}
+
+@Override
+public void mouseEntered(MouseEvent event) {	}
+
+@Override
+public void mousePressed(MouseEvent event) {
+	startDrag = event.getPoint();
+}
+
+
+
+///
+// MouseMotionListener Methods
+//
+
+///
+// Performs plane dragging
+// @param event MouseEvent with coordinate of mouse position
+@Override
+public void mouseDragged(MouseEvent event) {
+	int dx = event.getX() - (int)startDrag.getX();
+	int dy = event.getY() - (int)startDrag.getY();
+
+	if(dx*dx + dy*dy < 50)
+		return;
+
+	startDrag = event.getPoint();
+	centerX += dx;
+	centerY += dy;
+	repaint();
+}
+
+@Override
+public void mouseMoved(MouseEvent event) { }
+
+
+///
+// MouseWheelListener Methods
+///
+
+
+///
+// Controls zoom direction
+// @param event a MouseWheelEvent object
+///
+@Override
+public void mouseWheelMoved(MouseWheelEvent event) {
+	int rotation = event.getWheelRotation();
+	int x = event.getX();
+	int y = event.getY();
+
+	if(rotation > 0)
+		zoomIn(x, y);
+	else
+		zoomOut(x, y);
+}
 }
